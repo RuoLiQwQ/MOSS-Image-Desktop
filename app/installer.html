@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <title>MOSS Image · 一键准备</title>
+  <style>
+    :root { --ink:#202b24; --muted:#6d776f; --line:#e4e8df; --paper:#f6f7f2; --green:#315e3e; --pale:#eaf0e5; --amber:#916015; --red:#b74337; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:15px/1.65 "Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    button:disabled { cursor:default; }
+    button:focus-visible,input:focus-visible,summary:focus-visible { outline:3px solid #91b77b; outline-offset:4px; }
+    [hidden] { display:none !important; }
+    .page { max-width:1140px; margin:0 auto; padding:0 34px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:96px; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:11px; font-size:20px; font-weight:700; letter-spacing:-.7px; }
+    .mark { width:32px; height:32px; border-radius:10px; background:var(--green); color:#fff; display:grid; place-items:center; }
+    .mark svg { width:23px; height:23px; }
+    .brand small { font-size:11px; font-weight:500; letter-spacing:1.6px; margin-left:4px; color:var(--muted); }
+    .local { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
+    .local svg { width:15px; height:15px; }
+    .hero { padding:49px 0 31px; display:flex; align-items:flex-end; justify-content:space-between; gap:30px; }
+    .eyebrow { font-size:11px; letter-spacing:2px; color:var(--green); font-weight:700; margin:0 0 12px; }
+    h1 { font-size:clamp(27px,4vw,37px); letter-spacing:-1.3px; line-height:1.35; margin:0; font-weight:650; }
+    .hero p { color:var(--muted); margin:12px 0 0; font-size:14px; }
+    .version { flex-shrink:0; font-size:11px; color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:6px 9px; margin-bottom:3px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 278px; align-items:start; gap:22px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:15px; }
+    .main-card { padding:28px; }
+    .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; padding:0 0 27px; margin:0; list-style:none; border-bottom:1px solid var(--line); }
+    .steps li { position:relative; font-size:12px; color:#939a92; }
+    .steps li::after { position:absolute; content:""; left:35px; right:9px; top:14px; height:1px; background:var(--line); }
+    .steps li:last-child::after { display:none; }
+    .step-number { display:grid; place-items:center; position:relative; z-index:1; width:29px; height:29px; font-size:12px; border:1px solid var(--line); border-radius:50%; background:white; margin-bottom:9px; }
+    .steps li.active { color:var(--green); font-weight:700; }
+    .steps li.active .step-number { background:var(--green); border-color:var(--green); color:#fff; box-shadow:0 0 0 4px #eff3eb; }
+    .steps li.done { color:var(--green); }
+    .steps li.done .step-number { background:var(--pale); border-color:var(--pale); }
+    .steps li.done::after { background:#b5c9ad; }
+    .status { padding:26px 0 22px; }
+    .status-heading { display:flex; gap:9px; align-items:center; margin:0 0 7px; font-size:18px; font-weight:650; }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:#a8b3a3; flex-shrink:0; }
+    .status-dot.running { background:var(--green); animation:breathe 1.8s ease-in-out infinite; }
+    .status-dot.ready { background:var(--green); }
+    .status-dot.error { background:var(--red); }
+    .status p { margin:0; font-size:13px; color:var(--muted); overflow-wrap:anywhere; }
+    .connection-warning,.action-note { margin:0 0 20px; padding:11px 13px; border:1px solid #eadcc0; background:#fcf8ed; border-radius:8px; color:#7a5b28; font-size:12px; overflow-wrap:anywhere; }
+    .hardware { display:grid; grid-template-columns:repeat(3,1fr); gap:0; padding:14px 0; background:#f8f9f5; border:1px solid #edf0e8; border-radius:9px; }
+    .hardware-item { padding:0 15px; min-width:0; }
+    .hardware-item + .hardware-item { border-left:1px solid var(--line); }
+    .hardware-item span { display:block; font-size:11px; color:var(--muted); margin-bottom:3px; }
+    .hardware-item strong { font-size:16px; font-weight:600; }
+    .gpu { margin:9px 2px 22px; font-size:11px; color:var(--muted); overflow-wrap:anywhere; }
+    fieldset { margin:0; padding:0; border:0; min-width:0; }
+    legend { font-size:12px; font-weight:600; padding:0; margin-bottom:9px; }
+    .source-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .source { display:flex; align-items:center; gap:9px; padding:12px; border:1px solid var(--line); border-radius:8px; cursor:pointer; }
+    .source:has(input:checked) { border-color:#89a47b; background:#f7faf3; }
+    .source:has(input:disabled) { cursor:default; }
+    .source input { margin:0; accent-color:var(--green); width:15px; height:15px; flex-shrink:0; }
+    .source strong { display:block; font-weight:600; font-size:12px; line-height:1.5; }
+    .source small { display:block; font-size:10px; color:var(--muted); margin-top:2px; }
+    .download-size { margin:11px 0 21px; color:var(--muted); font-size:11px; }
+    .primary { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; min-height:49px; border:1px solid var(--green); background:var(--green); color:white; border-radius:8px; font-weight:600; font-size:14px; transition:background .15s; }
+    .primary:hover:not(:disabled) { background:#254e31; }
+    .primary:disabled { opacity:.62; }
+    .primary svg { width:17px; height:17px; }
+    .spinner { width:14px; height:14px; border:2px solid #ffffff55; border-top-color:#fff; border-radius:50%; animation:spin .9s linear infinite; }
+    .action-hint { text-align:center; font-size:10px; color:var(--muted); margin:9px 0 18px; }
+    .secondary-actions { display:flex; justify-content:center; gap:20px; }
+    .text-button { display:flex; align-items:center; gap:6px; border:0; padding:2px 0; background:none; font-size:11px; color:var(--muted); }
+    .text-button:hover:not(:disabled) { color:var(--green); }
+    .text-button:disabled { opacity:.45; }
+    .text-button svg { width:14px; height:14px; }
+    .logs { margin-top:23px; padding-top:17px; border-top:1px solid var(--line); }
+    .logs summary { cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:11px; color:var(--muted); list-style:none; }
+    .logs summary::-webkit-details-marker { display:none; }
+    .logs-title::before { content:"+"; display:inline-block; width:16px; font-weight:600; }
+    .logs[open] .logs-title::before { content:"−"; }
+    #connection-label { font-size:10px; text-align:right; }
+    pre { margin:12px 0 0; padding:14px; background:#f4f6f1; border-radius:8px; font:10px/1.8 Consolas,"Microsoft YaHei",monospace; color:#596451; max-height:190px; min-height:69px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .aside-card { padding:23px 22px; }
+    .aside-card h2 { margin:0 0 16px; font-size:14px; font-weight:650; }
+    .checklist { margin:0; padding:0; list-style:none; }
+    .checklist li { display:flex; align-items:flex-start; gap:9px; margin-bottom:17px; }
+    .checklist li:last-child { margin-bottom:0; }
+    .check-icon { display:grid; place-items:center; width:18px; height:18px; color:var(--green); background:var(--pale); border-radius:50%; font-size:10px; flex-shrink:0; margin-top:1px; }
+    .checklist strong { display:block; font-size:12px; font-weight:600; }
+    .checklist p { font-size:11px; color:var(--muted); margin:3px 0 0; line-height:1.8; }
+    .aside-note { border-top:1px solid var(--line); padding-top:16px; margin:19px 0 0; font-size:11px; color:var(--muted); }
+    .quiet-card { padding:21px 22px; margin-top:16px; background:#edf1e7; border:1px solid #e2e8d9; border-radius:13px; }
+    .quiet-card h2 { font-size:12px; margin:0 0 7px; color:#4b6443; }
+    .quiet-card p { font-size:11px; color:#718068; margin:0; line-height:1.9; }
+    footer { display:flex; justify-content:space-between; align-items:center; gap:15px; margin:28px 0 27px; font-size:10px; color:#899184; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes breathe { 50% { opacity:.35; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition:none !important; } }
+    @media (max-width:850px) { .layout { grid-template-columns:minmax(0,1fr) 240px; gap:16px; } .main-card { padding:23px; } .aside-card,.quiet-card { padding:20px 18px; } .page { padding:0 23px; } .version { display:none; } }
+    @media (max-width:690px) { header { min-height:76px; } .brand small { display:none; } .hero { padding:32px 0 25px; } .hero p { font-size:12px; } .layout { grid-template-columns:1fr; } aside { display:grid; grid-template-columns:1fr; } .quiet-card { margin-top:13px; } .page { padding:0 18px; } .main-card { padding:22px 18px; } .hardware-item { padding:0 11px; } .hardware-item strong { font-size:15px; } .source { padding:11px 9px; gap:7px; } .source strong { font-size:11px; } footer { align-items:flex-start; flex-direction:column; gap:4px; margin:23px 0; } }
+    @media (max-width:350px) { .local { font-size:10px; } .source-options { grid-template-columns:1fr; } .steps li { font-size:10px; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 17V7l7 7 7-7v10M5 7l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>MOSS Image <small>ONE CLICK · v0.1 正式版</small></div>
+      <span class="local"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.5"/></svg>仅在本机运行</span>
+    </header>
+    <section class="hero" aria-labelledby="page-title">
+      <div><div class="eyebrow">YOUR FIRST IMAGE STARTS HERE</div><h1 id="page-title">第一次使用，交给我们准备。</h1><p>自动准备运行环境与模型，完成后即可开始图片创作。</p></div>
+      <span class="version">Windows 10 / 11 · NVIDIA</span>
+    </section>
+    <main class="layout">
+      <section class="card main-card" aria-label="安装与启动">
+        <ol class="steps" aria-label="安装步骤">
+          <li data-step="0"><span class="step-number">1</span>硬件检查</li>
+          <li data-step="1"><span class="step-number">2</span>安装环境</li>
+          <li data-step="2"><span class="step-number">3</span>下载模型</li>
+          <li data-step="3"><span class="step-number">4</span>打开创作界面</li>
+        </ol>
+        <div class="status" role="status" aria-live="polite" aria-atomic="true">
+          <h2 class="status-heading"><span id="status-dot" class="status-dot" aria-hidden="true"></span><span id="status-title">正在连接启动器</span></h2>
+          <p id="status-message">连接本机启动器后，点击下方按钮开始准备。</p>
+        </div>
+        <div id="connection-warning" class="connection-warning" role="alert" hidden></div>
+        <div id="action-note" class="action-note" role="alert" hidden></div>
+        <div class="hardware" aria-label="硬件检查结果">
+          <div class="hardware-item"><span>显卡内存</span><strong id="vram">待检查</strong></div>
+          <div class="hardware-item"><span>系统内存</span><strong id="ram">待检查</strong></div>
+          <div class="hardware-item"><span>可用磁盘</span><strong id="disk">待检查</strong></div>
+        </div>
+        <p id="gpu" class="gpu">点击安装后，自动检查 NVIDIA 显卡与可用空间。</p>
+        <fieldset id="source-fieldset">
+          <legend>模型下载来源</legend>
+          <div class="source-options">
+            <label class="source"><input type="radio" name="source" value="huggingface" checked><span><strong>Hugging Face</strong><small>官方模型仓库</small></span></label>
+            <label class="source"><input type="radio" name="source" value="modelscope"><span><strong>ModelScope 魔搭</strong><small>官方模型仓库</small></span></label>
+          </div>
+        </fieldset>
+        <p class="download-size" id="download-size">模型下载量与所需空间以检查结果为准，请保持联网。</p>
+        <button class="primary" id="main-action" type="button" disabled><span class="spinner" id="button-spinner" aria-hidden="true" hidden></span><span id="button-label">安装并启动</span><svg id="button-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <p class="action-hint" id="action-hint">首次需要下载，请保留启动窗口并等待完成。</p>
+        <div class="secondary-actions">
+          <button id="open-output" class="text-button" type="button" disabled><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2.5 6V4.5h6l1.5 2h7.5v9H2.5V6Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>打开作品文件夹</button>
+          <button id="stop-service" class="text-button" type="button" disabled><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="5" y="5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>停止生成服务</button>
+        </div>
+        <details class="logs" id="logs-details" open>
+          <summary><span class="logs-title">安装日志</span><span id="connection-label">正在连接本机启动器…</span></summary>
+          <pre id="logs" tabindex="0" aria-label="安装日志末尾内容">等待开始。安装状态和下载信息将在这里显示。</pre>
+        </details>
+      </section>
+      <aside>
+        <section class="card aside-card">
+          <h2>开始前，只需这几件事</h2>
+          <ul class="checklist">
+            <li><span class="check-icon" aria-hidden="true">✓</span><div><strong>Windows + NVIDIA 显卡</strong><p>支持 Windows 10 / 11。请先安装可用的 NVIDIA 显卡驱动。</p></div></li>
+            <li><span class="check-icon" aria-hidden="true">✓</span><div><strong>稳定网络与充足空间</strong><p>模型和环境体积较大，下载时间取决于网络。所需空间以检查结果为准。</p></div></li>
+            <li><span class="check-icon" aria-hidden="true">✓</span><div><strong>无需提前配置环境</strong><p>不必自己安装 Python、Git 或 CUDA 工具包，安装器会准备运行环境。</p></div></li>
+          </ul>
+          <p class="aside-note">低显存设备能否运行取决于检查结果与模型设置；8 GB 显卡仅适合实验尝试，不保证可用。</p>
+        </section>
+        <section class="quiet-card">
+          <h2>创作在你的电脑上发生</h2>
+          <p>安装完成后，图片由本机显卡生成。本页面和创作界面仅供当前电脑访问，局域网中的其他设备无法打开。</p>
+        </section>
+      </aside>
+    </main>
+    <footer><span>基于 OpenMOSS / MOSS-Image · 使用 MOSS-Image-SFT 模型</span><span>本安装界面为社区封装，非 OpenMOSS 官方安装器</span></footer>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const $ = id => document.getElementById(id);
+      const phaseNames = { idle:'准备好开始了', checking:'检查这台电脑', environment:'正在准备运行环境', model:'正在下载模型', starting:'正在启动创作界面', ready:'准备完成，可以开始创作了', error:'准备未完成' };
+      const busyNames = { checking:'正在检查硬件…', environment:'正在安装环境…', model:'正在下载模型…', starting:'正在启动服务…' };
+      const stepIndex = { checking:0, environment:1, model:2, starting:3, ready:4 };
+      let state = { phase:'idle', busy:false, logs:[], hardware:null, app_url:null };
+      let connected = false;
+      let actionPending = false;
+      let sourceInitialized = false;
+      let lastActiveStep = -1;
+      let token = '';
+      let timer;
+
+      try {
+        const hashToken = window.location.hash.slice(1);
+        if (hashToken && hashToken.length <= 512 && !/[\r\n]/.test(hashToken)) {
+          token = hashToken;
+          sessionStorage.setItem('moss-launcher-token', token);
+        } else {
+          token = sessionStorage.getItem('moss-launcher-token') || '';
+        }
+      } catch (_) {
+        token = window.location.hash.slice(1);
+      }
+      if (window.location.hash) {
+        try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (_) {}
+      }
+
+      function setNotice(message) {
+        $('action-note').textContent = message;
+        $('action-note').hidden = !message;
+      }
+
+      function formatGiB(value) {
+        return typeof value === 'number' && Number.isFinite(value) && value >= 0
+          ? value.toLocaleString('zh-CN', { maximumFractionDigits:1 }) + ' GiB' : '待检查';
+      }
+
+      function localAppUrl(value) {
+        if (!value) return null;
+        try {
+          const url = new URL(value);
+          return url.protocol === 'http:' && ['127.0.0.1','localhost','[::1]'].includes(url.hostname) && !url.username && !url.password ? url.href : null;
+        } catch (_) { return null; }
+      }
+
+      function render() {
+        const phase = Object.prototype.hasOwnProperty.call(phaseNames, state.phase) ? state.phase : 'idle';
+        $('status-title').textContent = phaseNames[phase];
+        $('status-message').textContent = state.message || (phase === 'idle' ? '选择下载来源，点击“安装并启动”。我们会先检查这台电脑。' : '正在等待启动器更新状态…');
+        $('status-dot').className = 'status-dot' + (phase === 'error' ? ' error' : phase === 'ready' ? ' ready' : state.busy ? ' running' : '');
+        if (Object.prototype.hasOwnProperty.call(stepIndex, phase)) lastActiveStep = stepIndex[phase];
+        if (phase === 'idle') lastActiveStep = -1;
+        document.querySelectorAll('[data-step]').forEach((item, index) => {
+          const done = lastActiveStep > index;
+          const active = phase !== 'error' && lastActiveStep === index;
+          item.className = done ? 'done' : active ? 'active' : '';
+          item.querySelector('.step-number').textContent = done ? '✓' : String(index + 1);
+          if (active) item.setAttribute('aria-current', 'step'); else item.removeAttribute('aria-current');
+        });
+        const hardware = state.hardware;
+        $('vram').textContent = formatGiB(hardware && hardware.vram_gib);
+        $('ram').textContent = formatGiB(hardware && hardware.ram_gib);
+        $('disk').textContent = formatGiB(hardware && hardware.free_gib);
+        $('gpu').textContent = hardware ? '显卡：' + (hardware.gpu || '未识别到可用显卡') : '点击安装后，自动检查 NVIDIA 显卡与可用空间。';
+        const sizes = [];
+        if (typeof state.model_gib === 'number' && state.model_gib > 0) sizes.push('模型约 ' + formatGiB(state.model_gib));
+        if (typeof state.required_gib === 'number' && state.required_gib > 0) sizes.push('建议预留 ' + formatGiB(state.required_gib));
+        $('download-size').textContent = sizes.length ? sizes.join(' · ') + '。请保持联网。' : '模型下载量与所需空间以检查结果为准，请保持联网。';
+        const ready = phase === 'ready';
+        $('source-fieldset').disabled = Boolean(state.busy || actionPending || ready);
+        $('main-action').disabled = !connected || Boolean(state.busy || actionPending) || (ready && !localAppUrl(state.app_url));
+        $('button-label').textContent = actionPending ? '正在处理…' : state.busy ? (busyNames[phase] || '正在准备…') : ready ? '打开创作界面' : phase === 'error' ? '重试' : '安装并启动';
+        $('button-spinner').hidden = !(state.busy || actionPending);
+        $('button-arrow').hidden = Boolean(state.busy || actionPending);
+        $('action-hint').textContent = ready ? '创作界面会在新标签页打开，请保留启动窗口。' : phase === 'error' ? '可在下方查看原因，处理后点击重试。' : '首次需要下载，请保留启动窗口并等待完成。';
+        $('stop-service').disabled = !connected || actionPending || (!ready && !state.busy);
+        $('stop-service').textContent = state.busy ? '停止当前操作' : '停止生成服务';
+        $('open-output').disabled = !connected || actionPending;
+        const logText = Array.isArray(state.logs) && state.logs.length ? state.logs.slice(-160).map(String).join('\n') : '等待开始。安装状态和下载信息将在这里显示。';
+        const log = $('logs');
+        if (log.textContent !== logText) {
+          const follow = log.scrollHeight - log.scrollTop - log.clientHeight < 45;
+          log.textContent = logText;
+          if (follow) log.scrollTop = log.scrollHeight;
+        }
+      }
+
+      async function request(path, body) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), body === undefined ? 10000 : 30000);
+        const headers = { 'X-Launcher-Token':token };
+        const options = { method:body === undefined ? 'GET' : 'POST', headers, cache:'no-store', signal:controller.signal };
+        if (body !== undefined) {
+          headers['Content-Type'] = 'application/json';
+          options.body = JSON.stringify(body);
+        }
+        try {
+          const response = await fetch(path, options);
+          let data;
+          try { data = await response.json(); } catch (_) { data = {}; }
+          if (!response.ok) {
+            const message = response.status === 401 || response.status === 403
+              ? '启动凭据已失效，请重新双击启动程序，并使用它打开的新页面。'
+              : data.error || data.message || '启动器暂时无法完成操作（' + response.status + '）。';
+            const error = new Error(String(message));
+            error.authorization = response.status === 401 || response.status === 403;
+            throw error;
+          }
+          return data;
+        } finally { clearTimeout(timeout); }
+      }
+
+      async function poll() {
+        clearTimeout(timer);
+        try {
+          const result = await request('/api/status');
+          if (!result || typeof result.phase !== 'string') throw new Error('启动器返回了无法识别的状态。');
+          state = result;
+          connected = true;
+          $('connection-warning').hidden = true;
+          $('connection-label').textContent = '已连接 · 每 2 秒同步';
+          if (!sourceInitialized && ['huggingface','modelscope'].includes(result.source)) {
+            document.querySelector('input[name="source"][value="' + result.source + '"]').checked = true;
+            sourceInitialized = true;
+          }
+          render();
+        } catch (error) {
+          connected = false;
+          $('connection-label').textContent = '连接中断 · 正在重连';
+          $('connection-warning').textContent = error.authorization ? error.message : '暂时连接不到本机启动器。请确认启动窗口仍然打开；页面会自动尝试重新连接。';
+          $('connection-warning').hidden = false;
+          render();
+        } finally { timer = setTimeout(poll, 2000); }
+      }
+
+      async function perform(path, body, successMessage) {
+        if (!connected || actionPending) return;
+        actionPending = true;
+        setNotice('');
+        render();
+        try {
+          await request(path, body);
+          if (successMessage) setNotice(successMessage);
+        } catch (error) {
+          setNotice(error.name === 'AbortError' ? '操作暂未返回结果，正在查询当前状态。请查看安装日志。' : error.message || '操作失败，请稍后重试。');
+        } finally {
+          actionPending = false;
+          render();
+        }
+      }
+
+      $('main-action').addEventListener('click', () => {
+        if (state.phase === 'ready') {
+          const url = localAppUrl(state.app_url);
+          if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          return;
+        }
+        $('logs-details').open = true;
+        perform('/api/install', { source:document.querySelector('input[name="source"]:checked').value });
+      });
+      $('stop-service').addEventListener('click', () => perform('/api/stop', {}));
+      $('open-output').addEventListener('click', () => perform('/api/open-output', {}, '已请求打开作品文件夹，请查看系统文件窗口。'));
+      if (token) poll();
+      else {
+        $('status-title').textContent = '请从启动程序打开此页面';
+        $('status-message').textContent = '双击安装包内的启动程序，它会为你打开可以操作的安装页面。';
+        $('connection-label').textContent = '尚未连接';
+      }
+    })();
+  </script>
+</body>
+</html>

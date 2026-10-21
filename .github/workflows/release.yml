@@ -1,0 +1,45 @@
+name: Publish MOSS-Image Desktop v0.1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'release-assets/**'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-release-v0.1
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'RuoLiQwQ/MOSS-Image-Desktop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the reviewed release
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify release files
+        working-directory: release-assets
+        run: sha256sum --check SHA256SUMS.txt
+      - name: Publish v0.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create v0.1 \
+            release-assets/MOSS-Image-Desktop-v0.1.exe \
+            release-assets/MOSS-Image-Desktop-v0.1-source.zip \
+            release-assets/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "MOSS-Image Desktop v0.1 正式版" \
+            --notes-file RELEASE_NOTES.md \
+            --draft
+          gh release edit v0.1 --repo "$GITHUB_REPOSITORY" --draft=false --latest

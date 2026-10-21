@@ -1,0 +1,9 @@
+runtime/
+models/
+pictures/
+logs/
+__pycache__/
+*.pyc
+dist/
+*.user
+.vs/
