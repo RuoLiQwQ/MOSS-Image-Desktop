@@ -1,6 +1,6 @@
 # MOSS-Image 桌面启动器 · 0.1 正式版
 
-面向零基础用户的 Windows 桌面软件，基于 [OpenMOSS/MOSS-Image](https://github.com/OpenMOSS/MOSS-Image)。独立制作的包装器，并非 OpenMOSS 官方发行包。
+面向零基础用户的 Windows 桌面软件，基于 [OpenMOSS/MOSS-Image](https://github.com/OpenMOSS/MOSS-Image)。独立制作的包装器。使用chatGPT生成。
 
 **下载正式版：[v0.1 发布页](https://github.com/RuoLiQwQ/MOSS-Image-Desktop/releases/tag/v0.1)**。普通用户下载其中的 `MOSS-Image-Desktop-v0.1.exe` 即可。
 
